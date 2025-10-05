@@ -20,7 +20,6 @@ A modern, full-stack event management platform built with **Next.js 14**, **Type
 - **JWT Authentication**: Secure user authentication with refresh token rotation
 - **Role-based Access**: Admin and user role management with protected routes
 - **Input Validation**: Comprehensive server-side and client-side validation
-- **CSRF Protection**: HTTP-only cookies with SameSite strict policy
 
 ### 🎨 User Experience
 - **Responsive Design**: Mobile-first design that works seamlessly across all devices
