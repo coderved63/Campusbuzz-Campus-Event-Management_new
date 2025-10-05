@@ -233,33 +233,7 @@ interface ITicket {
 }
 ```
 
-## 🚀 Deployment Guide
 
-### Vercel Deployment
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Login to Vercel
-vercel login
-
-# Deploy
-vercel
-
-# Set production environment variables in Vercel dashboard
-```
-
-### Docker Deployment
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
 
 ## 🛠️ Development Workflow
 
@@ -300,13 +274,6 @@ npm run test:coverage
 - **Role-Based Access** - Admin and user permission levels
 - **API Rate Limiting** - Prevents abuse of API endpoints
 
-## 📱 Mobile Responsiveness
-
-CampusBuzz is fully responsive across all device sizes:
-- **📱 Mobile** (320px+): Optimized touch interfaces and navigation
-- **📺 Tablet** (768px+): Enhanced layouts with sidebar navigation
-- **💻 Desktop** (1024px+): Full-featured interface with multi-column layouts
-- **🖥️ Large Screens** (1280px+): Maximized content area with advanced features
 
 ## 🤝 Contributing
 
@@ -320,9 +287,7 @@ CampusBuzz is fully responsive across all device sizes:
 ### Development Guidelines
 - Follow TypeScript strict mode requirements
 - Use Tailwind CSS for styling
-- Write comprehensive JSDoc comments
-- Ensure mobile responsiveness
-- Add proper error handling
+
 
 ## 📄 License
 
