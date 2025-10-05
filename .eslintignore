@@ -1,0 +1,16 @@
+# Ignore everything
+*
+**/*
+*.js
+*.jsx
+*.ts
+*.tsx
+*.json
+src/
+pages/
+components/
+lib/
+utils/
+models/
+contexts/
+types/
