@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { useUser } from '@/contexts/UserContext';
 
 interface RegisterRequest {
@@ -19,7 +18,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { setUser } = useUser();
+  const { register } = useUser();
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,16 +34,16 @@ const RegisterPage = () => {
     setError('');
 
     try {
-      const response = await axios.post('/api/register', formData);
+      const result = await register(formData.name, formData.email, formData.password);
       
-      if (response.data.success) {
-        // After successful registration, redirect to login
-        router.push('/login?message=Registration successful! Please login.');
+      if (result.success) {
+        // After successful registration, user is automatically logged in, redirect to dashboard
+        router.push('/');
       } else {
-        setError(response.data.error || 'Registration failed');
+        setError(result.error || 'Registration failed');
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || 'An error occurred');
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

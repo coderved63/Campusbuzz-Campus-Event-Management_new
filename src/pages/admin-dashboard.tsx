@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import axios from 'axios';
 import { useUser } from '@/contexts/UserContext';
+import { withAuth } from '@/lib/withAuth';
 import { formatDateFull } from '@/utils/dateFormat';
 import { 
   CheckCircleIcon, 
@@ -19,22 +19,10 @@ const AdminDashboard = () => {
   const [pendingEvents, setPendingEvents] = useState<IEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const { user } = useUser();
-  const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    
-    if (!user.isAdmin) {
-      router.push('/');
-      return;
-    }
-    
     fetchPendingEvents();
-  }, [user, router]);
+  }, []);
 
   const fetchPendingEvents = async () => {
     try {
@@ -72,30 +60,7 @@ const AdminDashboard = () => {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
-  if (!user.isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-          <p className="text-gray-600 mb-4">You don't have permission to access this page.</p>
-          <button
-            onClick={() => router.push('/')}
-            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark"
-          >
-            Go Home
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -253,4 +218,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAuth(AdminDashboard, { adminOnly: true });

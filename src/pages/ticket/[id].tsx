@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useUser } from '@/contexts/UserContext';
 import { ArrowLeftIcon, TrashIcon, TicketIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import QRCodeComponent from '@/components/QRCodeComponent';
 
 interface TicketDetails {
   _id: string;
@@ -136,15 +137,40 @@ const TicketPage = () => {
               {/* QR Code Section */}
               <div className="flex flex-col items-center">
                 <div className="bg-white p-4 rounded-lg shadow-md border-2 border-gray-200 mb-4">
-                  {ticket.qrCode ? (
-                    <img 
-                      src={ticket.qrCode.startsWith('http') ? ticket.qrCode : `/uploads/qrcodes/${ticket.qrCode}`}
-                      alt="Ticket QR Code"
-                      className="w-48 h-48 object-contain"
-                    />
+                  {ticket ? (
+                    ticket.qrCode?.startsWith('/api/qrcode/') ? (
+                      // Use dynamic QR code API endpoint
+                      <img 
+                        src={ticket.qrCode}
+                        alt="Ticket QR Code"
+                        className="w-48 h-48 object-contain"
+                      />
+                    ) : (
+                      // Generate QR code from ticket data using component
+                      <QRCodeComponent 
+                        data={{
+                          ticketId: ticket._id,
+                          eventId: ticket.eventId._id,
+                          eventName: ticket.eventId.title,
+                          userName: ticket.userName,
+                          userEmail: ticket.userEmail,
+                          eventDate: ticket.eventId.date,
+                          eventTime: ticket.eventId.time,
+                          eventLocation: ticket.eventId.location,
+                          price: ticket.eventId.price,
+                          purchaseDate: ticket.purchaseDate,
+                          verified: true,
+                          timestamp: new Date().toISOString()
+                        }}
+                        size={192}
+                        level="H"
+                        className="w-48 h-48"
+                        alt="Ticket QR Code"
+                      />
+                    )
                   ) : (
                     <div className="w-48 h-48 bg-gray-100 flex items-center justify-center">
-                      <span className="text-gray-500">QR Code</span>
+                      <span className="text-gray-500">Loading QR Code...</span>
                     </div>
                   )}
                 </div>

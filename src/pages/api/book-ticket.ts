@@ -2,12 +2,17 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import Event from '@/models/Event';
 import Ticket from '@/models/Ticket';
+import User from '@/models/User';
 import { getUserFromToken } from '@/lib/auth';
-import QRCode from 'qrcode';
-import path from 'path';
-import fs from 'fs';
-import { getQRCodesPath } from '@/lib/upload';
 import { BookTicketRequest, ApiResponse, ITicket } from '@/types';
+
+// Generate a verification token for security
+function generateVerificationToken(ticketId: string, userId: string, eventId: string): string {
+  const crypto = require('crypto');
+  const secret = process.env.JWT_SECRET || 'fallback-secret';
+  const data = `${ticketId}-${userId}-${eventId}-${Date.now()}`;
+  return crypto.createHmac('sha256', secret).update(data).digest('hex').substring(0, 16);
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,6 +30,15 @@ export default async function handler(
       return res.status(401).json({ 
         success: false, 
         error: 'Not authenticated' 
+      });
+    }
+
+    // Get full user details from database
+    const user = await User.findById(userData.id);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
       });
     }
 
@@ -57,8 +71,8 @@ export default async function handler(
       userid: userData.id,
       eventid: eventId,
       ticketDetails: {
-        name: name || userData.name,
-        email: email || userData.email,
+        name: name || user.name,
+        email: email || user.email,
         eventname: event.title,
         eventdate: event.date,
         eventtime: event.time,
@@ -66,43 +80,29 @@ export default async function handler(
       }
     });
 
-    // Generate QR code data with better formatting
-    const qrData = JSON.stringify({
+    // Generate comprehensive QR data
+    const qrData = {
       ticketId: ticket._id,
       eventId: event._id,
       eventName: event.title,
-      userName: name || userData.name,
-      userEmail: email || userData.email,
-      date: new Date(event.date).toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }),
-      time: event.time,
-      location: event.location,
+      userName: name || user.name,
+      userEmail: email || user.email,
+      eventDate: event.date,
+      eventTime: event.time,
+      eventLocation: event.location,
       price: event.price === 0 ? 'Free' : `₹${event.price}`,
       host: event.host,
-      category: event.category
-    }, null, 2);
+      category: event.category,
+      purchaseDate: ticket.createdAt,
+      verified: true,
+      timestamp: new Date().toISOString(),
+      // Add verification token for security
+      verificationToken: generateVerificationToken(ticket._id.toString(), userData.id, event._id.toString())
+    };
 
-    // Generate QR code image
-    const qrCodeFileName = `ticket_${ticket._id}.png`;
-    const qrCodePath = path.join(getQRCodesPath(), qrCodeFileName);
-    
-    // Create QR code with higher quality and better settings
-    await QRCode.toFile(qrCodePath, qrData, {
-      errorCorrectionLevel: 'H',
-      margin: 2,
-      width: 400,
-      color: {
-        dark: '#1f2937',  // Dark blue
-        light: '#ffffff'  // White background
-      }
-    });
-
-    // Update ticket with QR code path
-    ticket.ticketDetails.qr = `/uploads/qrcodes/${qrCodeFileName}`;
+    // Store QR data in ticket (no file generation)
+    ticket.ticketDetails.qrData = JSON.stringify(qrData);
+    ticket.ticketDetails.qr = `/api/qrcode/${ticket._id}`; // Dynamic QR URL
     await ticket.save();
 
     res.status(201).json({ 

@@ -18,7 +18,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Header: React.FC = () => {
-  const { user, setUser } = useUser();
+  const { user, logout: contextLogout } = useUser();
   const { isDarkMode, toggleTheme } = useTheme();
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,13 +54,8 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  const logout = async () => {
-    try {
-      await axios.post('/api/logout');
-      setUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const logout = () => {
+    contextLogout();
   };
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

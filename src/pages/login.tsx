@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { useUser } from '@/contexts/UserContext';
 import { LoginRequest } from '@/types';
 
@@ -13,7 +12,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { setUser } = useUser();
+  const { login } = useUser();
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,16 +28,15 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      const response = await axios.post('/api/login', formData);
+      const result = await login(formData.email, formData.password);
       
-      if (response.data.success) {
-        setUser(response.data.data);
+      if (result.success) {
         router.push('/');
       } else {
-        setError(response.data.error || 'Login failed');
+        setError(result.error || 'Login failed');
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || 'An error occurred');
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

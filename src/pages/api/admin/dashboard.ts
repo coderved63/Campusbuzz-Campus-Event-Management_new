@@ -4,11 +4,13 @@ import Event from '@/models/Event';
 import Ticket from '@/models/Ticket';
 import User from '@/models/User';
 import Category from '@/models/Category';
+import { requireAdmin } from '@/lib/auth';
 
-export default async function handler(
+export default requireAdmin(async (
   req: NextApiRequest,
-  res: NextApiResponse
-) {
+  res: NextApiResponse,
+  user
+) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ 
       success: false, 
@@ -135,4 +137,4 @@ export default async function handler(
       error: 'Failed to fetch dashboard data' 
     });
   }
-}
+});

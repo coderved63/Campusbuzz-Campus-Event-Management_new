@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { comparePassword, generateToken } from '@/lib/auth';
+import { comparePassword, generateTokens, setTokenCookies } from '@/lib/auth';
 import { LoginRequest, ApiResponse, IUser } from '@/types';
 
 export default async function handler(
@@ -27,9 +27,9 @@ export default async function handler(
     const userDoc = await User.findOne({ email });
 
     if (!userDoc) {
-      return res.status(404).json({ 
+      return res.status(401).json({ 
         success: false, 
-        error: 'User not found' 
+        error: 'Invalid email or password' 
       });
     }
 
@@ -37,13 +37,14 @@ export default async function handler(
     if (!passOk) {
       return res.status(401).json({ 
         success: false, 
-        error: 'Invalid password' 
+        error: 'Invalid email or password' 
       });
     }
 
-    const token = generateToken({
+    // Generate access and refresh tokens
+    const { accessToken, refreshToken } = generateTokens({
+      id: userDoc._id.toString(),
       email: userDoc.email,
-      id: userDoc._id,
       isAdmin: userDoc.isAdmin
     });
 
@@ -55,10 +56,14 @@ export default async function handler(
       isAdmin: userDoc.isAdmin,
     };
 
-    // Set cookie
-    res.setHeader('Set-Cookie', `token=${token}; HttpOnly; Path=/; SameSite=Strict; Max-Age=86400`);
+    // Set secure cookies with both tokens
+    setTokenCookies(res, accessToken, refreshToken);
     
-    res.status(200).json({ success: true, data: user });
+    res.status(200).json({ 
+      success: true, 
+      data: user,
+      message: 'Login successful'
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ 

@@ -24,6 +24,31 @@ const EventPage = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [hasTicket, setHasTicket] = useState(false);
+  const [checkingTicket, setCheckingTicket] = useState(false);
+
+  // Check if user has existing ticket
+  useEffect(() => {
+    if (!user || !id) return;
+    
+    const checkExistingTicket = async () => {
+      setCheckingTicket(true);
+      try {
+        const response = await axios.get(`/api/tickets?userId=${user._id}`);
+        if (response.data.success && response.data.data) {
+          // Check if user has a ticket for this specific event
+          const hasEventTicket = response.data.data.some((ticket: any) => ticket.eventid === id);
+          setHasTicket(hasEventTicket);
+        }
+      } catch (error) {
+        console.log('No existing ticket found');
+      } finally {
+        setCheckingTicket(false);
+      }
+    };
+
+    checkExistingTicket();
+  }, [user, id]);
 
   // Fetch event data
   useEffect(() => {
@@ -57,20 +82,33 @@ const EventPage = () => {
     setBookingError(null);
 
     try {
+      console.log('Booking ticket for user:', user.name, user.email);
+      console.log('Event ID:', id);
+      
       const response = await axios.post('/api/book-ticket', {
         eventId: id,
         name: user.name,
         email: user.email
       });
       
+      console.log('Booking response:', response.data);
+      
       if (response.data.success) {
         alert('Ticket booked successfully!');
+        setHasTicket(true); // Update state to show user now has ticket
         router.push('/wallet');
+      } else {
+        setBookingError(response.data.error || 'Failed to book ticket');
       }
     } catch (error: any) {
       console.error('Error booking ticket:', error);
+      console.error('Error response:', error.response?.data);
+      
       if (error.response?.data?.error) {
         setBookingError(error.response.data.error);
+      } else if (error.response?.status === 401) {
+        setBookingError('Please log in to book tickets');
+        router.push('/login');
       } else {
         setBookingError('Failed to book ticket. Please try again.');
       }
@@ -277,18 +315,44 @@ const EventPage = () => {
 
             {/* Book Ticket Button */}
             <div className="text-center mb-8">
-              <button
-                onClick={handleBookTicket}
-                disabled={bookingLoading}
-                className="inline-flex items-center px-8 py-4 bg-primary text-white text-lg font-semibold rounded-lg hover:bg-primary-dark transition-colors duration-200 disabled:opacity-50"
-              >
-                {bookingLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                ) : (
-                  <TicketIcon className="w-5 h-5 mr-3" />
-                )}
-                {bookingLoading ? 'Booking...' : 'Book Ticket'}
-              </button>
+              {checkingTicket ? (
+                <div className="inline-flex items-center px-8 py-4 text-gray-500">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-transparent mr-3"></div>
+                  Checking ticket status...
+                </div>
+              ) : hasTicket ? (
+                <div className="inline-flex flex-col items-center">
+                  <div className="inline-flex items-center px-8 py-4 bg-green-600 text-white text-lg font-semibold rounded-lg mb-3">
+                    <TicketIcon className="w-5 h-5 mr-3" />
+                    Ticket Already Booked
+                  </div>
+                  <Link href="/wallet">
+                    <button className="text-primary hover:text-primary-dark underline">
+                      View Your Tickets
+                    </button>
+                  </Link>
+                </div>
+              ) : user ? (
+                <button
+                  onClick={handleBookTicket}
+                  disabled={bookingLoading}
+                  className="inline-flex items-center px-8 py-4 bg-primary text-white text-lg font-semibold rounded-lg hover:bg-primary-dark transition-colors duration-200 disabled:opacity-50"
+                >
+                  {bookingLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                  ) : (
+                    <TicketIcon className="w-5 h-5 mr-3" />
+                  )}
+                  {bookingLoading ? 'Booking...' : 'Book Ticket'}
+                </button>
+              ) : (
+                <Link href="/login">
+                  <button className="inline-flex items-center px-8 py-4 bg-primary text-white text-lg font-semibold rounded-lg hover:bg-primary-dark transition-colors duration-200">
+                    <TicketIcon className="w-5 h-5 mr-3" />
+                    Login to Book Ticket
+                  </button>
+                </Link>
+              )}
             </div>
 
             {/* Share Section */}

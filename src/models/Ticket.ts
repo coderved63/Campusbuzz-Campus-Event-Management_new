@@ -14,6 +14,7 @@ const TicketSchema: Schema<ITicketDocument> = new Schema({
     eventtime: { type: String, required: true },
     ticketprice: { type: Number, required: true },
     qr: { type: String, required: false },
+    qrData: { type: String, required: false }, // Store QR data for dynamic generation
   },
   count: { type: Number, default: 0 },
   verified: { type: Boolean, default: false },

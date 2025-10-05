@@ -8,6 +8,8 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import Head from 'next/head';
+import QRScanner from '@/components/QRScanner';
+import { withAuth } from '@/lib/withAuth';
 
 interface TicketVerificationResult {
   valid: boolean;
@@ -98,49 +100,93 @@ const TicketVerificationPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Verification Input */}
+          {/* Verification Method Toggle */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ticket ID
-                </label>
-                <input
-                  type="text"
-                  value={ticketId}
-                  onChange={(e) => setTicketId(e.target.value)}
-                  placeholder="Enter ticket ID..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  onKeyPress={(e) => e.key === 'Enter' && handleVerifyTicket()}
-                />
-              </div>
-              
-              <div className="flex items-end space-x-3">
+            <div className="flex justify-center mb-4">
+              <div className="bg-gray-100 rounded-lg p-1 flex">
                 <button
-                  onClick={() => handleVerifyTicket()}
-                  disabled={loading}
-                  className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setScanMode(false)}
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    !scanMode 
+                      ? 'bg-white text-indigo-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
                 >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Verifying...
-                    </div>
-                  ) : (
-                    'Verify Ticket'
-                  )}
+                  <DocumentTextIcon className="w-5 h-5 inline mr-2" />
+                  Manual Entry
                 </button>
-                
                 <button
-                  onClick={handleScanQR}
-                  disabled={loading}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  onClick={() => setScanMode(true)}
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    scanMode 
+                      ? 'bg-white text-indigo-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
                 >
-                  <QrCodeIcon className="w-5 h-5 mr-2" />
-                  Scan QR
+                  <QrCodeIcon className="w-5 h-5 inline mr-2" />
+                  QR Scanner
                 </button>
               </div>
             </div>
+
+            {!scanMode ? (
+              // Manual Entry Mode
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ticket ID
+                  </label>
+                  <input
+                    type="text"
+                    value={ticketId}
+                    onChange={(e) => setTicketId(e.target.value)}
+                    placeholder="Enter ticket ID..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    onKeyPress={(e) => e.key === 'Enter' && handleVerifyTicket()}
+                  />
+                </div>
+                
+                <div className="flex items-end">
+                  <button
+                    onClick={() => handleVerifyTicket()}
+                    disabled={loading}
+                    className="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Verifying...
+                      </div>
+                    ) : (
+                      'Verify Ticket'
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // QR Scanner Mode
+              <QRScanner 
+                onVerificationComplete={(result) => {
+                  setVerificationResult({
+                    valid: true,
+                    ticket: {
+                      _id: result.ticket.id,
+                      eventTitle: result.event.title,
+                      userName: result.ticket.attendeeName,
+                      userEmail: result.ticket.attendeeEmail,
+                      ticketType: 'General',
+                      quantity: 1,
+                      purchaseDate: result.ticket.purchaseDate,
+                      eventDate: result.event.date,
+                      eventLocation: result.event.location,
+                      verified: true,
+                      verificationDate: result.verificationTime
+                    },
+                    message: 'Ticket verified successfully via QR code'
+                  });
+                }}
+              />
+            )}
           </div>
 
           {/* Verification Result */}
@@ -263,4 +309,4 @@ const TicketVerificationPage: React.FC = () => {
   );
 };
 
-export default TicketVerificationPage;
+export default withAuth(TicketVerificationPage, { adminOnly: true });

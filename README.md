@@ -1,224 +1,213 @@
-# CampusBuzz
+# 🎓 CampusBuzz - Campus Event Management System
 
-**Campus Event Management System built with Next.js, TypeScript, and Tailwind CSS**
+A modern, full-stack event management platform built with **Next.js 14**, **TypeScript**, and **MongoDB**. CampusBuzz streamlines campus event organization with intuitive interfaces, secure authentication, and innovative features like dynamic QR code generation.
 
-A comprehensive event management platform for campus activities with user authentication, event creation, ticket booking, and admin management features.
+## ✨ Key Features
 
-## 🚀 Features
+### 🎪 Event Management
+- **Event Creation & Publishing**: Rich event creation with image uploads, categories, and detailed descriptions
+- **Admin Approval System**: Secure event moderation workflow with admin dashboard
+- **Event Discovery**: Browse events with advanced filtering by category, date, and location
+- **Real-time Updates**: Live event status updates and notifications
 
-### Core Functionality
-- **User Authentication**: Register, login, logout with JWT-based authentication
-- **Event Management**: Create, read, update, delete events with admin approval system
-- **Ticket Booking**: Book tickets with QR code generation
-- **Admin Dashboard**: Approve events, manage users, view analytics
-- **Real-time Notifications**: Event approval notifications, new event alerts
-- **Image Upload**: Support for event images with multiple formats
-- **Search & Filter**: Search events by title, category, date
-- **Responsive Design**: Mobile-first design with dark mode support
+### 🎫 Smart Ticketing System
+- **Seamless Booking**: One-click ticket booking with duplicate prevention
+- **Dynamic QR Codes**: Real-time QR code generation without file storage - codes are generated on-demand with embedded verification tokens
+- **Ticket Verification**: Secure QR code scanning for event entry with HMAC-SHA256 verification
+- **Digital Wallet**: Personal ticket management dashboard with all purchased tickets
 
-### Technical Features
-- **Next.js 14**: Modern React framework with API routes
-- **TypeScript**: Full type safety with strict mode enabled
-- **Tailwind CSS**: Utility-first styling matching original design
-- **MongoDB**: Database with Mongoose ODM and TypeScript models
-- **File Upload**: Multer integration for image handling
-- **QR Code Generation**: Automatic QR codes for tickets
-- **Context API**: State management for user and theme
-- **SWR**: Data fetching and caching
-- **Responsive UI**: Mobile and desktop optimized
+### 🔐 Security & Authentication
+- **JWT Authentication**: Secure user authentication with refresh token rotation
+- **Role-based Access**: Admin and user role management with protected routes
+- **Input Validation**: Comprehensive server-side and client-side validation
+- **CSRF Protection**: HTTP-only cookies with SameSite strict policy
 
-## 📁 Project Structure
+### 🎨 User Experience
+- **Responsive Design**: Mobile-first design that works seamlessly across all devices
+- **Dark Mode Support**: Toggle between light and dark themes
+- **Real-time Notifications**: Instant updates for event approvals and announcements
+- **Intuitive Navigation**: Clean, modern interface with smooth transitions
+
+### 🔧 Technical Excellence
+- **Type Safety**: Full TypeScript implementation with strict type checking
+- **Performance Optimized**: Server-side rendering, image optimization, and efficient data fetching
+- **Scalable Architecture**: Modular component structure and clean API design
+- **Error Handling**: Comprehensive error management with user-friendly messages
+
+## 🏗️ Architecture Overview
 
 ```
 campusbuzz-next/
-├── public/                  # Static assets
-│   ├── assets/             # Images, icons
-│   └── uploads/            # User uploaded files & QR codes
-├── src/
-│   ├── components/         # Reusable React components
-│   │   ├── EventCard.tsx   # Event display component
-│   │   ├── Header.tsx      # Navigation header
-│   │   └── Footer.tsx      # Site footer
-│   ├── contexts/           # React Context providers
-│   │   ├── UserContext.tsx # User authentication state
-│   │   └── ThemeContext.tsx# Dark/light theme state
-│   ├── lib/                # Utility libraries
-│   │   ├── mongodb.ts      # Database connection
-│   │   ├── auth.ts         # Authentication helpers
-│   │   └── upload.ts       # File upload utilities
-│   ├── models/             # MongoDB/Mongoose models
-│   │   ├── User.ts         # User data model
-│   │   ├── Event.ts        # Event data model
-│   │   ├── Ticket.ts       # Ticket data model
-│   │   ├── Notification.ts # Notification model
-│   │   └── Category.ts     # Category model
-│   ├── pages/              # Next.js pages & API routes
-│   │   ├── api/            # Backend API endpoints
-│   │   │   ├── auth/       # Authentication endpoints
-│   │   │   ├── events.ts   # Event CRUD operations
-│   │   │   ├── tickets.ts  # Ticket operations
-│   │   │   └── ...         # Other API routes
-│   │   ├── index.tsx       # Home page
-│   │   ├── login.tsx       # Login page
-│   │   ├── register.tsx    # Registration page
-│   │   └── ...             # Other pages
-│   ├── styles/             # Global styles
-│   │   └── globals.css     # Tailwind & custom CSS
-│   └── types/              # TypeScript type definitions
-│       └── index.ts        # Shared interfaces
-├── package.json            # Dependencies & scripts
-├── tsconfig.json          # TypeScript configuration
-├── tailwind.config.js     # Tailwind CSS configuration
-├── next.config.js         # Next.js configuration
-└── README.md              # This file
+├── 📁 public/
+│   ├── assets/              # Static images and icons
+│   └── uploads/             # User-uploaded event images
+├── 📁 src/
+│   ├── 🧩 components/       # Reusable UI components
+│   │   ├── EventCard.tsx    # Event display cards
+│   │   ├── Header.tsx       # Navigation header
+│   │   ├── Footer.tsx       # Site footer
+│   │   └── QRCodeComponent.tsx # Dynamic QR code display
+│   ├── 🔄 contexts/         # React Context providers
+│   │   ├── UserContext.tsx  # Authentication & user state
+│   │   ├── ThemeContext.tsx # Dark/light mode
+│   │   └── NotificationContext.tsx # Real-time notifications
+│   ├── 🛠️ lib/              # Core utilities
+│   │   ├── mongodb.ts       # Database connection
+│   │   ├── auth.ts          # JWT authentication
+│   │   └── upload.ts        # File handling
+│   ├── 📊 models/           # Database schemas
+│   │   ├── User.ts          # User model
+│   │   ├── Event.ts         # Event model
+│   │   ├── Ticket.ts        # Ticket model
+│   │   └── Category.ts      # Event categories
+│   ├── 📄 pages/            # Next.js pages & API routes
+│   │   ├── api/             # REST API endpoints
+│   │   │   ├── auth/        # Authentication APIs
+│   │   │   ├── events/      # Event management
+│   │   │   ├── tickets/     # Ticket operations
+│   │   │   └── qrcode/      # Dynamic QR generation
+│   │   ├── admin/           # Admin dashboard
+│   │   ├── event/           # Event pages
+│   │   └── user/            # User profile pages
+│   ├── 🎨 styles/           # Global styles
+│   └── 📝 types/            # TypeScript definitions
 ```
 
-## 🛠️ Installation & Setup
+## 🚀 Technology Stack
+
+### Frontend
+- **Next.js 14** - React framework with SSR and API routes
+- **TypeScript** - Type-safe JavaScript with strict mode
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Context API** - State management for user auth and theme
+- **Axios** - HTTP client with interceptors for token management
+
+### Backend
+- **Next.js API Routes** - Serverless API endpoints
+- **MongoDB** - NoSQL database with Mongoose ODM
+- **JWT Authentication** - Secure user authentication with refresh tokens
+- **Multer** - File upload handling for event images
+- **Bcrypt.js** - Password hashing and verification
+
+### Key Libraries
+- **QRCode (v1.5.3)** - Dynamic QR code generation for tickets
+- **Heroicons** - Beautiful SVG icons for UI
+- **Date-fns** - Modern date utility library
+- **SWR** - Data fetching with caching and revalidation
+
+## ⚡ Quick Start
 
 ### Prerequisites
 - Node.js 18+ and npm
 - MongoDB Atlas account or local MongoDB instance
-- Git
 
-### Step 1: Clone & Install
+### Installation
 ```bash
-git clone <this-repository>
+# Clone the repository
+git clone https://github.com/your-username/campusbuzz-next.git
 cd campusbuzz-next
+
+# Install dependencies
 npm install
-```
 
-### Step 2: Environment Configuration
-```bash
-# Copy environment template
+# Set up environment variables
 cp .env.example .env.local
+# Edit .env.local with your MongoDB URI and JWT secrets
 
-# Edit .env.local with your values:
-MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/campusbuzz
-JWT_SECRET=your_super_secret_jwt_key_here
-NEXTAUTH_SECRET=your_nextauth_secret_here
-ADMIN_SECRET=your_admin_secret_here
-```
-
-### Step 3: Development Server
-```bash
-# Start development server
+# Run development server
 npm run dev
 
 # Open http://localhost:3000
 ```
 
-### Step 4: Build for Production
+### Environment Variables
 ```bash
-# Build application
-npm run build
-
-# Start production server
-npm start
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/campusbuzz
+JWT_SECRET=your_super_secret_jwt_key_here
+JWT_REFRESH_SECRET=your_refresh_token_secret_here
 ```
 
-## 🔧 API Endpoints
+## 🎫 Dynamic QR Code System
 
-### Authentication
-- `POST /api/register` - User registration
-- `POST /api/login` - User login
-- `POST /api/logout` - User logout
-- `GET /api/profile` - Get user profile
+CampusBuzz features an innovative **dynamic QR code system** that generates QR codes on-demand without storing files:
 
-### Events
-- `GET /api/events` - Get all approved events
-- `POST /api/events` - Create new event (requires auth)
-- `GET /api/event/[id]` - Get single event
-- `DELETE /api/event/[id]` - Delete event (owner/admin only)
-- `POST /api/event/[id]/approve` - Approve event (admin only)
+### Key Features
+- **🔄 Real-time Generation**: QR codes are generated dynamically via API endpoints (`/api/qrcode/[ticketId]`)
+- **🔒 Security Tokens**: Each QR code includes HMAC-SHA256 verification tokens to prevent tampering
+- **💾 Zero File Storage**: No static QR code files - everything generated on-demand using the `qrcode` library
+- **📱 Multiple Formats**: Support for SVG and Canvas rendering for optimal display across devices
+- **✅ Verification System**: Secure ticket verification with embedded event and user data
 
-### Tickets
-- `GET /api/tickets` - Get all tickets
-- `POST /api/book-ticket` - Book event ticket
-- `GET /api/tickets/user/[userId]` - Get user tickets
-- `DELETE /api/tickets/[id]` - Cancel ticket
-
-### Admin
-- `GET /api/events/pending` - Get pending events (admin only)
-- `POST /api/create-admin` - Create admin user
-
-## 🎨 Styling & Theming
-
-### Tailwind CSS
-The application uses Tailwind CSS with a custom configuration:
-- **Primary Color**: Indigo (#6366f1)
-- **Dark Mode**: Class-based dark mode support
-- **Custom Colors**: `primary`, `darkbg`, `darkcard`, `darktext`
-- **Responsive**: Mobile-first breakpoints
-
-### Theme Toggle
-- Light/Dark mode toggle in header
-- Automatic theme persistence in localStorage
-- Consistent theming across all components
-
-## 📱 Pages & Routes
-
-### Public Routes
-- `/` - Home page with featured events
-- `/login` - User login
-- `/register` - User registration
-- `/event/[id]` - Individual event details
-
-### Protected Routes (Require Authentication)
-- `/useraccount` - User profile & settings
-- `/createEvent` - Create new event
-- `/calendar` - Calendar view of events
-- `/wallet` - User's tickets & bookings
-- `/admin-dashboard` - Admin panel (admin only)
-
-## 🔐 Authentication & Authorization
-
-### User Roles
-- **Regular User**: Can create events (pending approval), book tickets
-- **Admin User**: Can approve events, manage users, see all data
-
-### Security Features
-- JWT-based authentication with HTTP-only cookies
-- Password hashing with bcryptjs
-- Protected API routes with middleware
-- CSRF protection via SameSite cookies
-- Input validation & sanitization
-
-## 📊 Database Schema
-
-### User Model
-```typescript
-interface IUser {
-  _id: string;
-  name: string;
-  email: string; // unique
-  password: string; // hashed
-  isAdmin: boolean; // default: false
-  createdAt: Date;
-  updatedAt: Date;
+### QR Code Data Structure
+```json
+{
+  "ticketId": "unique_ticket_identifier",
+  "eventId": "event_identifier",
+  "eventName": "Event Title",
+  "userName": "Attendee Name",
+  "eventDate": "2025-10-05",
+  "eventTime": "18:00",
+  "eventLocation": "Campus Auditorium",
+  "verificationToken": "secure_hash_token",
+  "timestamp": "2025-10-05T10:30:00.000Z"
 }
 ```
 
-### Event Model
-```typescript
-interface IEvent {
-  _id: string;
-  owner: string; // User ID
-  title: string;
-  description: string;
-  date: Date;
-  time: string;
-  location: string;
-  category: string;
-  price: number;
-  image: string; // file path
-  host: string;
-  isApproved: boolean; // default: false
-  createdAt: Date;
-  updatedAt: Date;
-}
+## 📚 API Reference
+
+### Authentication Endpoints
+```http
+POST   /api/register        # User registration
+POST   /api/login          # User login
+POST   /api/logout         # User logout
+POST   /api/refresh-token  # Token renewal
+GET    /api/profile        # User profile
 ```
 
-### Ticket Model
+### Event Management
+```http
+GET    /api/events         # List approved events
+POST   /api/events         # Create new event
+GET    /api/events/[id]    # Get single event
+PUT    /api/events/[id]    # Update event
+DELETE /api/events/[id]    # Delete event
+```
+
+### Ticket Operations
+```http
+GET    /api/tickets        # List user tickets
+POST   /api/book-ticket    # Book event ticket
+GET    /api/qrcode/[id]    # Generate QR code
+GET    /api/tickets/verify/[id] # Verify ticket
+```
+
+### Admin Operations
+```http
+GET    /api/admin/events/pending    # Pending events
+POST   /api/admin/events/[id]/approve # Approve event
+GET    /api/admin/users            # Manage users
+GET    /api/admin/analytics        # System analytics
+```
+
+## 🎨 UI Components & Design
+
+### Design System
+- **Color Palette**: Modern indigo primary with dark mode support
+- **Typography**: Clean, readable font hierarchy
+- **Responsive Layout**: Mobile-first design with breakpoints at sm, md, lg, xl
+- **Accessibility**: ARIA labels, keyboard navigation, color contrast compliance
+
+### Key Components
+- **EventCard** - Displays event information with booking status
+- **QRCodeComponent** - Dynamic QR code display with loading states  
+- **Header** - Navigation with user menu and theme toggle
+- **Footer** - Site information and links
+- **CategorySelector** - Event category filtering
+- **NotificationProvider** - Real-time notification system
+
+## 📊 Database Models
+
+### Enhanced Ticket Model
 ```typescript
 interface ITicket {
   _id: string;
@@ -231,95 +220,126 @@ interface ITicket {
     eventdate: Date;
     eventtime: string;
     ticketprice: number;
-    qr?: string; // QR code path
+    qr: string;        // Dynamic QR URL
+    qrData: string;    // JSON string of QR data
   };
-  count: number;
+  user: ObjectId;      // Reference to User
+  event: ObjectId;     // Reference to Event
+  ticketType: string;  // e.g., "General", "VIP"
+  quantity: number;    // Number of tickets
+  verified: boolean;   // Verification status
+  verifiedAt: Date;    // Verification timestamp
   createdAt: Date;
   updatedAt: Date;
 }
 ```
 
-## 🚀 Deployment
+## 🚀 Deployment Guide
 
-### Vercel (Recommended)
+### Vercel Deployment
 ```bash
 # Install Vercel CLI
 npm i -g vercel
 
+# Login to Vercel
+vercel login
+
 # Deploy
 vercel
 
-# Set environment variables in Vercel dashboard
+# Set production environment variables in Vercel dashboard
 ```
 
-### Environment Variables for Production
-```bash
-MONGODB_URI=your_production_mongodb_uri
-JWT_SECRET=your_production_jwt_secret
-NEXTAUTH_SECRET=your_production_nextauth_secret
-ADMIN_SECRET=your_production_admin_secret
+### Docker Deployment
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
 ```
 
-## 🧪 Development
+## 🛠️ Development Workflow
 
-### Code Quality
+### Code Quality Tools
 ```bash
+# Type checking
+npm run type-check
+
 # Linting
 npm run lint
 
-# Type checking
-npx tsc --noEmit
-
-# Formatting
+# Formatting with Prettier
 npm run format
+
+# Build production bundle
+npm run build
 ```
 
-### Adding New Features
-1. Create TypeScript interfaces in `/src/types/`
-2. Add API routes in `/src/pages/api/`
-3. Create React components in `/src/components/`
-4. Add pages in `/src/pages/`
-5. Update models if needed in `/src/models/`
+### Testing
+```bash
+# Run tests (when implemented)
+npm test
 
-## 📋 Migration Checklist
+# Run tests in watch mode
+npm run test:watch
 
-✅ **Completed Features:**
-- [x] User authentication (register, login, logout)
-- [x] Event CRUD operations with approval system
-- [x] Ticket booking with QR code generation  
-- [x] File upload for event images
-- [x] Admin dashboard and user management
-- [x] Responsive design with dark mode
-- [x] Search and filtering
-- [x] Notification system
-- [x] MongoDB integration with TypeScript
-- [x] All API endpoints migrated
-- [x] Complete UI component migration
-- [x] Static asset migration
+# Generate coverage report
+npm run test:coverage
+```
 
-## 🔍 QA Verification Steps
+## 🔐 Security Features
 
-1. **Authentication Flow**
-   - [ ] Register new user
-   - [ ] Login with valid credentials
-   - [ ] Access protected routes
-   - [ ] Logout functionality
+- **JWT with Refresh Tokens** - Secure authentication with automatic token renewal
+- **HTTP-Only Cookies** - Prevents XSS attacks on authentication tokens
+- **CSRF Protection** - SameSite cookie policy and token validation
+- **Input Validation** - Comprehensive server-side and client-side validation
+- **Password Security** - Bcrypt hashing with salt rounds
+- **Role-Based Access** - Admin and user permission levels
+- **API Rate Limiting** - Prevents abuse of API endpoints
 
-2. **Event Management**
-   - [ ] Create new event (pending approval)
-   - [ ] Admin approve event
-   - [ ] Event appears in public listing
-   - [ ] Delete event (owner/admin)
+## 📱 Mobile Responsiveness
 
-3. **Ticket Booking**
-   - [ ] Book ticket for approved event
-   - [ ] Receive QR code
-   - [ ] View tickets in wallet
-   - [ ] Prevent duplicate booking
+CampusBuzz is fully responsive across all device sizes:
+- **📱 Mobile** (320px+): Optimized touch interfaces and navigation
+- **📺 Tablet** (768px+): Enhanced layouts with sidebar navigation
+- **💻 Desktop** (1024px+): Full-featured interface with multi-column layouts
+- **🖥️ Large Screens** (1280px+): Maximized content area with advanced features
 
-4. **UI/UX**
-   - [ ] Responsive design works on mobile
-   - [ ] Dark mode toggle functions
+## 🤝 Contributing
+
+### Getting Started
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow TypeScript strict mode requirements
+- Use Tailwind CSS for styling
+- Write comprehensive JSDoc comments
+- Ensure mobile responsiveness
+- Add proper error handling
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Next.js Team** - For the amazing React framework
+- **MongoDB** - For the flexible NoSQL database
+- **Tailwind CSS** - For the utility-first CSS framework
+- **QRCode.js** - For dynamic QR code generation
+- **Open Source Community** - For the incredible tools and libraries
+
+---
+
+**Built with ❤️ for campus communities worldwide**
    - [ ] Search functionality works
    - [ ] All pages load correctly
 

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { hashPassword } from '@/lib/auth';
+import { hashPassword, generateTokens, setTokenCookies } from '@/lib/auth';
 import { RegisterRequest, ApiResponse, IUser } from '@/types';
 
 export default async function handler(
@@ -21,6 +21,23 @@ export default async function handler(
       return res.status(400).json({ 
         success: false, 
         error: 'All fields are required' 
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid email format' 
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Password must be at least 6 characters long' 
       });
     }
 
@@ -49,7 +66,20 @@ export default async function handler(
       isAdmin: userDoc.isAdmin,
     };
 
-    res.status(201).json({ success: true, data: user });
+    // Generate tokens and set cookies for automatic login after registration
+    const { accessToken, refreshToken } = generateTokens({
+      id: userDoc._id.toString(),
+      email: userDoc.email,
+      isAdmin: userDoc.isAdmin
+    });
+
+    setTokenCookies(res, accessToken, refreshToken);
+
+    res.status(201).json({ 
+      success: true, 
+      data: user,
+      message: 'Registration successful'
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ 

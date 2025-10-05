@@ -3,8 +3,14 @@ import dbConnect from '@/lib/mongodb';
 import Event from '@/models/Event';
 import Ticket from '@/models/Ticket';
 import User from '@/models/User';
-import QRCode from 'qrcode';
-import { v4 as uuidv4 } from 'uuid';
+
+// Generate a verification token for security
+function generateVerificationToken(ticketId: string, userId: string, eventId: string): string {
+  const crypto = require('crypto');
+  const secret = process.env.JWT_SECRET || 'fallback-secret';
+  const data = `${ticketId}-${userId}-${eventId}-${Date.now()}`;
+  return crypto.createHmac('sha256', secret).update(data).digest('hex').substring(0, 16);
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -52,7 +58,7 @@ export default async function handler(
       user = new User({
         name: customerInfo.name,
         email: customerInfo.email.toLowerCase(),
-        password: 'temp_password_' + uuidv4(), // Temporary password
+        password: 'temp_password_' + Math.random().toString(36), // Temporary password
         isAdmin: false
       });
       await user.save();
@@ -82,29 +88,28 @@ export default async function handler(
       verified: false
     });
 
-    // Generate QR code
-    const qrData = JSON.stringify({
+    // Generate comprehensive QR data
+    const qrData = {
       ticketId: ticket._id.toString(),
       eventId: eventId,
       userId: user._id.toString(),
       eventName: event.title,
       attendeeName: customerInfo.name,
       eventDate: event.date,
-      quantity: quantity
-    });
+      eventTime: event.time,
+      eventLocation: event.location,
+      quantity: quantity,
+      price: totalAmount,
+      purchaseDate: ticket.createdAt,
+      verified: true,
+      timestamp: new Date().toISOString(),
+      // Add verification token for security
+      verificationToken: generateVerificationToken(ticket._id.toString(), user._id.toString(), eventId)
+    };
 
-    const qrCodeDataURL = await QRCode.toDataURL(qrData, {
-      errorCorrectionLevel: 'M',
-      type: 'image/png',
-      quality: 0.92,
-      margin: 1,
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF'
-      }
-    });
-
-    ticket.ticketDetails.qr = qrCodeDataURL;
+    // Store QR data instead of generating file (dynamic approach)
+    ticket.ticketDetails.qrData = JSON.stringify(qrData);
+    ticket.ticketDetails.qr = `/api/qrcode/${ticket._id}`; // Dynamic QR URL
     await ticket.save();
 
     // Update event attendees count
@@ -133,7 +138,7 @@ export default async function handler(
         paymentMethod,
         bookingDate: new Date()
       },
-      qrCode: qrCodeDataURL
+      qrCode: `/api/qrcode/${ticket._id}`
     };
 
     console.log(`Ticket booked successfully: ${ticket._id} for event: ${event.title}`);

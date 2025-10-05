@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import Event from '@/models/Event';
+import { requireAdmin } from '@/lib/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default requireAdmin(async (req: NextApiRequest, res: NextApiResponse, user) => {
   await dbConnect();
 
   if (req.method === 'GET') {
@@ -20,4 +21,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Allow', ['GET']);
     res.status(405).json({ success: false, error: `Method ${req.method} not allowed` });
   }
-}
+});

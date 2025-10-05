@@ -1,5 +1,5 @@
 import { useUser } from '@/contexts/UserContext';
-import { useRouter } from 'next/router';
+import { withAuth } from '@/lib/withAuth';
 import { UserCircleIcon, EnvelopeIcon, CalendarIcon, TicketIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -21,16 +21,13 @@ interface UserTicket {
 
 const UserAccountPage = () => {
   const { user } = useUser();
-  const router = useRouter();
   const [tickets, setTickets] = useState<UserTicket[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // User is guaranteed to exist due to withAuth wrapper
+  if (!user) return null;
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     // Fetch user's tickets
     const fetchTickets = async () => {
       try {
@@ -44,19 +41,13 @@ const UserAccountPage = () => {
     };
 
     fetchTickets();
-  }, [user, router]);
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  }, []);
 
   const handleLogout = () => {
     // This would typically call a logout function from UserContext
-    router.push('/login');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   };
 
   return (
@@ -188,4 +179,4 @@ const UserAccountPage = () => {
   );
 };
 
-export default UserAccountPage;
+export default withAuth(UserAccountPage);
